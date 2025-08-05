@@ -1,0 +1,38 @@
+# -------------------------
+# Gitignore for the entire project
+# -------------------------
+
+# The frontend React app
+# ==================================
+# Exclude Node.js dependencies
+/frontend/node_modules/
+
+# Exclude the build folder (generated artifact)
+/frontend/build/
+
+# Exclude environment files (containing secrets)
+/frontend/.env
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.production.local
+
+
+# The backend Spring Boot app (Maven)
+# ==================================
+# Exclude Maven build directory
+/backend/target/
+
+# VS Code
+/.vscode/
+
+# Other
+# ==================================
+# Log files
+*.log
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Spring Boot private properties files (if you have them)
+# /backend/src/main/resources/application-prod.properties
