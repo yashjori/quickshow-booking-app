@@ -1,8 +1,11 @@
 import axios from 'axios';
 
+const baseURL =
+  import.meta.env.VITE_API_URL?.replace(/\/$/, '') || 'http://localhost:8081/api';
+
 const instance = axios.create({
-  baseURL: 'http://localhost:8081',
-  timeout: 10000,
+  baseURL,
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -31,12 +34,13 @@ instance.interceptors.response.use(
   (error) => {
     // Handle common errors here
     if (error.response?.status === 401) {
-      // Handle unauthorized access
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+        window.location.href = '/sign-in';
+      }
     }
     return Promise.reject(error);
   }
 );
 
-export default instance; 
+export default instance;

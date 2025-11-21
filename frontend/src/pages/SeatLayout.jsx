@@ -1,8 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, CreditCard, Check } from 'lucide-react';
-import axios from '../lib/axios';
+import { ArrowLeft, CreditCard } from 'lucide-react';
 import toast from 'react-hot-toast';
+import {
+  showApi,
+  movieApi,
+  bookingApi,
+  getDefaultUserId,
+  getBookedSeatsForShow,
+} from '../lib/quickshowApi';
 
 const SeatLayout = () => {
   const { showId } = useParams();
@@ -12,29 +18,30 @@ const SeatLayout = () => {
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookedSeats, setBookedSeats] = useState([]);
+
+  const fetchShowDetails = useCallback(async () => {
+    try {
+      const showData = await showApi.get(showId);
+      if (!showData) {
+        throw new Error('Show not found');
+      }
+      setShow(showData);
+      const movieData = await movieApi.get(showData.movieId);
+      setMovie(movieData);
+      setBookedSeats(getBookedSeatsForShow(showId));
+      setSelectedSeats([]);
+    } catch (error) {
+      console.error('Error fetching show details:', error);
+      toast.error('Unable to load show information.');
+    } finally {
+      setLoading(false);
+    }
+  }, [showId]);
 
   useEffect(() => {
     fetchShowDetails();
-  }, [showId]);
-
-  const fetchShowDetails = async () => {
-  try {
-    // Step 1: Fetch the show first
-    const showResponse = await axios.get(`/api/shows/${showId}`);
-    const showData = showResponse.data;
-
-    // Step 2: Then fetch the movie using the movieId from the show
-    const movieResponse = await axios.get(`/api/movies/${showData.movieId}`);
-
-    // Set both in state
-    setShow(showData);
-    setMovie(movieResponse.data);
-    setLoading(false);
-  } catch (error) {
-    console.error('Error fetching show details:', error);
-    setLoading(false);
-  }
-};
+  }, [fetchShowDetails]);
 
 
   const generateSeats = () => {
@@ -51,7 +58,7 @@ const SeatLayout = () => {
           row: rows[i],
           number: j,
           isSelected: selectedSeats.includes(seatNumber),
-          isBooked: false // In a real app, this would be fetched from the backend
+          isBooked: bookedSeats.includes(seatNumber),
         });
       }
       seats.push(rowSeats);
@@ -60,6 +67,10 @@ const SeatLayout = () => {
   };
 
   const handleSeatClick = (seatId) => {
+    if (bookedSeats.includes(seatId)) {
+      toast.error('Seat already booked');
+      return;
+    }
     if (selectedSeats.includes(seatId)) {
       setSelectedSeats(selectedSeats.filter(id => id !== seatId));
     } else {
@@ -84,17 +95,18 @@ const SeatLayout = () => {
     setBookingLoading(true);
     try {
       const bookingData = {
-        showId: showId,
+        showId,
         movieId: movie.id,
         theaterId: show.theaterId,
-        userId: 'user123', // In a real app, this would come from authentication
+        userId: getDefaultUserId(),
         seatNumbers: selectedSeats,
         totalAmount: calculateTotal(),
-        paymentMethod: 'CREDIT_CARD'
+        paymentMethod: 'CREDIT_CARD',
       };
 
-      const response = await axios.post('/api/tickets', bookingData);
+      await bookingApi.create(bookingData);
       toast.success('Booking successful!');
+      setBookedSeats([...bookedSeats, ...selectedSeats]);
       navigate('/my-bookings');
     } catch (error) {
       console.error('Error creating booking:', error);
@@ -227,7 +239,15 @@ const SeatLayout = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Show Time</span>
-                  <span className="font-medium">{show.showTime}</span>
+                  <span className="font-medium">
+                    {show.showDate
+                      ? new Date(`${show.showDate}T${show.showTime ?? '00:00'}`).toLocaleString([], {
+                          weekday: 'short',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })
+                      : show.showTime}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Screen</span>

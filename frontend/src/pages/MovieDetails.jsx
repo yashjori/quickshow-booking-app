@@ -1,7 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Star, Clock, Calendar, MapPin, Play, ArrowLeft } from 'lucide-react';
-import axios from '../lib/axios';
+import toast from 'react-hot-toast';
+import { movieApi, showApi } from '../lib/quickshowApi';
+
+const buildDefaultDateRange = () => {
+  const today = new Date();
+  return Array.from({ length: 7 }, (_, i) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    return date.toISOString().split('T')[0];
+  });
+};
 
 const MovieDetails = () => {
   const { id } = useParams();
@@ -9,51 +19,56 @@ const MovieDetails = () => {
   const [shows, setShows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState('');
+  const [availableDates, setAvailableDates] = useState([]);
+  const dateOptions = useMemo(
+    () => (availableDates.length ? availableDates : buildDefaultDateRange()),
+    [availableDates],
+  );
 
   useEffect(() => {
-    fetchMovieDetails();
+    const loadDetails = async () => {
+      setLoading(true);
+      try {
+        const movieData = await movieApi.get(id);
+        if (!movieData) {
+          throw new Error('Movie not found');
+        }
+        setMovie(movieData);
+
+        const upcomingShows = (await showApi.listUpcoming()).filter((show) => show.movieId === id);
+        const uniqueDates = [...new Set(upcomingShows.map((show) => show.showDate))];
+        setAvailableDates(uniqueDates);
+
+        const initialDate = uniqueDates[0] ?? buildDefaultDateRange()[0];
+        setSelectedDate(initialDate);
+      } catch (error) {
+        console.error('Error fetching movie details:', error);
+        toast.error('Unable to load movie details.');
+        setMovie(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDetails();
   }, [id]);
 
   useEffect(() => {
-    if (selectedDate) {
-      fetchShows();
-    }
+    if (!selectedDate) return;
+    const fetchShows = async () => {
+      try {
+        const results = await showApi.forMovieAndDate(id, selectedDate);
+        setShows(results);
+      } catch (error) {
+        console.error('Error fetching shows:', error);
+        toast.error('Unable to load showtimes.');
+      }
+    };
+
+    fetchShows();
   }, [selectedDate, id]);
 
-  const fetchMovieDetails = async () => {
-    try {
-      const response = await axios.get(`/api/movies/${id}`);
-      setMovie(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching movie details:', error);
-      setLoading(false);
-    }
-  };
-
-  const fetchShows = async () => {
-    try {
-      const response = await axios.get(`/api/shows/movie/${id}/date/${selectedDate}`);
-      setShows(response.data);
-    } catch (error) {
-      console.error('Error fetching shows:', error);
-    }
-  };
-
-  const getAvailableDates = () => {
-    const dates = [];
-    const today = new Date();
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      dates.push(date.toISOString().split('T')[0]);
-    }
-    return dates;
-  };
-
-  const formatTime = (time) => {
-    return time.substring(0, 5);
-  };
+  const formatTime = (time = '') => time.toString().substring(0, 5);
 
   if (loading) {
     return (
@@ -156,7 +171,7 @@ const MovieDetails = () => {
               )}
 
               {movie.trailerUrl && (
-                <button className="bg-red-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors flex items-center space-x-2">
+                <button className="bg-red-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors flex items-center space-x-2" onClick={() => window.open(movie.trailerUrl, '_blank')}>
                   <Play className="h-4 w-4" />
                   <span>Watch Trailer</span>
                 </button>
@@ -173,7 +188,7 @@ const MovieDetails = () => {
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Select Date</h3>
             <div className="flex space-x-2 overflow-x-auto pb-2">
-              {getAvailableDates().map((date) => (
+              {dateOptions.map((date) => (
                 <button
                   key={date}
                   onClick={() =>{setSelectedDate(date);console.log(selectedDate)}}

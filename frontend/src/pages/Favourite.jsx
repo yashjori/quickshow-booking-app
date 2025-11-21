@@ -1,24 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Star, Clock } from 'lucide-react';
+import { Heart, RefreshCcw } from 'lucide-react';
 import MovieCard from '../components/MovieCard';
+import { getFavorites, removeFavoriteMovie } from '../lib/favorites';
 
 const Favourite = () => {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // In a real app, this would fetch from backend
-    // For now, we'll use localStorage or mock data
-    const savedFavorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-    setFavorites(savedFavorites);
+    setFavorites(getFavorites());
     setLoading(false);
   }, []);
 
   const removeFromFavorites = (movieId) => {
-    const updatedFavorites = favorites.filter(movie => movie.id !== movieId);
+    const updatedFavorites = removeFavoriteMovie(movieId);
     setFavorites(updatedFavorites);
-    localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+  };
+
+  const refreshFavorites = () => {
+    setFavorites(getFavorites());
   };
 
   if (loading) {
@@ -32,9 +33,18 @@ const Favourite = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Favourites</h1>
-          <p className="text-gray-600">Your favorite movies and shows</p>
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Favourites</h1>
+            <p className="text-gray-600">Save must-watch titles and unlock personalised alerts.</p>
+          </div>
+          <button
+            onClick={refreshFavorites}
+            className="inline-flex items-center space-x-2 px-4 py-2 rounded-full border text-sm font-semibold text-gray-700 hover:bg-gray-50"
+          >
+            <RefreshCcw className="h-4 w-4" />
+            <span>Sync</span>
+          </button>
         </div>
 
         {favorites.length === 0 ? (
@@ -56,7 +66,7 @@ const Favourite = () => {
                 <MovieCard movie={movie} />
                 <button
                   onClick={() => removeFromFavorites(movie.id)}
-                  className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition-colors"
+                  className="absolute top-2 right-2 bg-white text-red-600 p-2 rounded-full shadow hover:bg-red-50 transition-colors"
                 >
                   <Heart className="h-4 w-4 fill-current" />
                 </button>

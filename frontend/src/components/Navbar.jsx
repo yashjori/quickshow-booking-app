@@ -31,6 +31,9 @@ const Navbar = () => {
             <Link to="/" className="text-gray-700 hover:text-red-600 transition-colors">
               Home
             </Link>
+            <Link to="/movies" className="text-gray-700 hover:text-red-600 transition-colors">
+              Movies
+            </Link>
             <Link to="/my-bookings" className="text-gray-700 hover:text-red-600 transition-colors">
               My Bookings
             </Link>
@@ -104,6 +107,13 @@ const Navbar = () => {
                 onClick={() => setIsMenuOpen(false)}
               >
                 My Bookings
+              </Link>
+              <Link
+                to="/movies"
+                className="block px-3 py-2 text-gray-700 hover:text-red-600 transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Movies
               </Link>
               <Link
                 to="/favourites"

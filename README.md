@@ -1,200 +1,169 @@
-# QuickShow - Movie Ticket Booking Application
+# QuickShow – cinematic ticketing ready for production & Vercel
 
-A complete movie ticket booking web application built with React frontend, Java Spring Boot backend, and MongoDB database.
+QuickShow is a premium movie-ticketing experience built with a React/Vite frontend and a Spring Boot + MongoDB backend. The project now ships with polished UI/UX, seeded demo content, togglable mock APIs for static hosting, and deployment-ready build steps (Vercel for the frontend, any JVM host for the backend).
 
-## Features
+## Highlights
 
-- 🎬 Browse and search movies
-- 🎭 View movie details and trailers
-- 🎫 Book movie tickets with seat selection
-- 📅 View available show times and dates
-- 💳 Complete booking process with payment
-- 📱 Responsive design for all devices
-- 🔐 User authentication and authorization
-- 📋 Manage bookings and favorites
-- 🎨 Modern and intuitive UI
-
-## Tech Stack
-
-### Frontend
-- **React 19** - Modern React with hooks
-- **Vite** - Fast build tool
-- **Tailwind CSS** - Utility-first CSS framework
-- **React Router** - Client-side routing
-- **Axios** - HTTP client
-- **Lucide React** - Beautiful icons
-- **React Hot Toast** - Toast notifications
-
-### Backend
-- **Spring Boot 3.5.4** - Java framework
-- **Spring Data MongoDB** - MongoDB integration
-- **Lombok** - Reduce boilerplate code
-- **Maven** - Dependency management
-
-### Database
-- **MongoDB** - NoSQL database
-
-## Prerequisites
-
-Before running this application, make sure you have the following installed:
-
-- **Java 24** or higher
-- **Node.js 18** or higher
-- **MongoDB** (local installation or MongoDB Atlas)
-- **Maven** (for backend)
-
-## Installation & Setup
-
-### 1. Clone the Repository
-
-```bash
-git clone <repository-url>
-cd ShowTime
-```
-
-### 2. Backend Setup
-
-```bash
-cd backend
-
-# Install dependencies (Maven will download them automatically)
-mvn clean install
-
-# Run the application
-mvn spring-boot:run
-```
-
-The backend will start on `http://localhost:8080`
-
-### 3. Frontend Setup
-
-```bash
-cd frontend
-
-# Install dependencies
-npm install
-
-# Start the development server
-npm run dev
-```
-
-The frontend will start on `http://localhost:5173`
-
-### 4. Database Setup
-
-Make sure MongoDB is running on your system. The application will automatically create the necessary collections when it starts.
-
-If you're using MongoDB Atlas, update the connection string in `backend/src/main/resources/application.properties`.
-
-## Project Structure
-
-```
-ShowTime/
-├── backend/                 # Spring Boot backend
-│   ├── src/main/java/
-│   │   └── com/quickshow/backend/
-│   │       ├── controller/  # REST controllers
-│   │       ├── model/       # Data models
-│   │       ├── repository/  # MongoDB repositories
-│   │       ├── service/     # Business logic
-│   │       └── QuickShowBackendApplication.java
-│   └── src/main/resources/
-│       └── application.properties
-├── frontend/                # React frontend
-│   ├── src/
-│   │   ├── components/      # Reusable components
-│   │   ├── pages/          # Page components
-│   │   ├── lib/            # Utilities and configurations
-│   │   └── App.jsx         # Main app component
-│   └── package.json
-└── README.md
-```
-
-## API Endpoints
-
-### Movies
-- `GET /api/movies` - Get all movies
-- `GET /api/movies/{id}` - Get movie by ID
-- `GET /api/movies/genre/{genre}` - Get movies by genre
-- `GET /api/movies/search?title={title}` - Search movies
-- `POST /api/movies` - Create new movie
-- `PUT /api/movies/{id}` - Update movie
-- `DELETE /api/movies/{id}` - Delete movie
-
-### Theaters
-- `GET /api/theaters` - Get all theaters
-- `GET /api/theaters/{id}` - Get theater by ID
-- `GET /api/theaters/city/{city}` - Get theaters by city
-- `POST /api/theaters` - Create new theater
-- `PUT /api/theaters/{id}` - Update theater
-- `DELETE /api/theaters/{id}` - Delete theater
-
-### Shows
-- `GET /api/shows` - Get all shows
-- `GET /api/shows/{id}` - Get show by ID
-- `GET /api/shows/movie/{movieId}` - Get shows by movie
-- `GET /api/shows/theater/{theaterId}` - Get shows by theater
-- `GET /api/shows/movie/{movieId}/date/{date}` - Get shows by movie and date
-- `POST /api/shows` - Create new show
-- `PUT /api/shows/{id}` - Update show
-- `DELETE /api/shows/{id}` - Delete show
-
-### Tickets
-- `GET /api/tickets` - Get all tickets
-- `GET /api/tickets/{id}` - Get ticket by ID
-- `GET /api/tickets/user/{userId}` - Get tickets by user
-- `GET /api/tickets/show/{showId}` - Get tickets by show
-- `POST /api/tickets` - Create new ticket
-- `PUT /api/tickets/{id}` - Update ticket
-- `PUT /api/tickets/{id}/cancel` - Cancel ticket
-- `DELETE /api/tickets/{id}` - Delete ticket
-
-## Usage
-
-1. **Browse Movies**: Visit the home page to see all available movies
-2. **Movie Details**: Click on a movie to view details, cast, and show times
-3. **Select Show**: Choose a date and show time
-4. **Seat Selection**: Select your preferred seats from the interactive seat layout
-5. **Booking**: Complete the booking process and payment
-6. **Manage Bookings**: View and manage your bookings in the "My Bookings" section
-
-## Environment Variables
-
-### Backend (.env or application.properties)
-```properties
-# MongoDB Configuration
-spring.data.mongodb.uri=mongodb://localhost:27017/quickshow
-spring.data.mongodb.database=quickshow
-
-# Server Configuration
-server.port=8080
-server.servlet.context-path=/api
-
-# CORS Configuration
-spring.web.cors.allowed-origins=http://localhost:5173
-```
-
-### Frontend (.env)
-```env
-VITE_API_BASE_URL=http://localhost:8080
-```
-
-
-## Support
-
-If you encounter any issues or have questions, please:
-
-1. Check the [Issues](https://github.com/yourusername/quickshow/issues) page
-2. Create a new issue with detailed information
-3. Contact the development team
-
-## Acknowledgments
-
-- Spring Boot team for the excellent framework
-- React team for the amazing library
-- MongoDB for the powerful database
-- All contributors and supporters
+- ✨ **Hero-grade UI** with featured premieres, curated collections, partner theaters, and premium show highlights.
+- 🎬 **Deep movie experience**: details pages, trailers, smart date filters, premium badges, and contextual CTAs.
+- 🪄 **Mock data layer**: high-fidelity movies, shows, bookings, and favorites that work offline or on static hosting. Flip one env flag to hit the real backend.
+- 💼 **Seat booking UX**: live availability, seat caps, booking summary, and local persistence backed by mock storage.
+- 🔐 **Authentication-ready** via Clerk (just drop in your publishable key).
+- 🚀 **Production readiness**: environment-driven configs, global CORS, Java 17 compatibility, CI-friendly builds, and a Vercel deployment recipe.
 
 ---
 
-**Happy Movie Booking! 🎬🎫** 
+## Project structure
+
+```
+quickshow-booking-app/
+├── backend/            # Spring Boot 3.5 + MongoDB
+│   └── src/main/java/com/quickshow/backend
+│       ├── config/     # Seeding + global CORS
+│       ├── controller/ # REST endpoints
+│       ├── service/    # Business logic
+│       └── model/      # MongoDB documents
+├── frontend/           # React 19 + Vite 7
+│   └── src/
+│       ├── data/       # Rich mock datasets
+│       ├── lib/        # API orchestration, storage helpers
+│       ├── components/ # UI building blocks
+│       └── pages/      # Routes & experiences
+└── README.md
+```
+
+---
+
+## Environment variables
+
+### Frontend (`frontend/.env`)
+
+```bash
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_xxx            # Clerk (optional—remove protected routes if unused)
+VITE_API_URL=https://your-backend-domain/api      # Points to Spring Boot (defaults to http://localhost:8081/api)
+VITE_USE_MOCK_DATA=true                           # true = rich demo data, false = force API (with mock fallback)
+VITE_DEFAULT_USER_ID=demo-user                    # Used for booking mocks
+```
+
+> **Tip:** For a zero-backend Vercel deploy keep `VITE_USE_MOCK_DATA=true`. When you have the Java API hosted, flip it to `false` (or remove) and set `VITE_API_URL`.
+
+### Backend (`backend/src/main/resources/application.properties`)
+
+```properties
+spring.data.mongodb.uri=${MONGODB_URI:mongodb://localhost:27017/quickshow}
+spring.data.mongodb.database=${MONGODB_DB:quickshow}
+server.port=${PORT:8081}
+server.servlet.context-path=/api
+spring.web.cors.allowed-origins=${ALLOWED_ORIGINS:http://localhost:5173,https://*.vercel.app}
+```
+
+Use environment variables (`MONGODB_URI`, `MONGODB_DB`, `PORT`, `ALLOWED_ORIGINS`) on your server/hosting platform.
+
+---
+
+## Local development
+
+### Prerequisites
+- Node.js ≥ 18
+- Java 17
+- Maven 3.9+
+- MongoDB (local or Atlas)
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev        # http://localhost:5173
+npm run build      # production build (Vercel uses this)
+```
+
+### Backend
+
+```bash
+cd backend
+mvn clean install
+mvn spring-boot:run   # http://localhost:8081/api
+```
+
+The `DataSeeder` seeds MongoDB with curated titles/shows the first time it runs.
+
+---
+
+## Deploying to Vercel (frontend)
+
+1. **Create a Vercel project** pointing to the `frontend` folder.
+2. **Set build & output:**
+   - Build command: `npm run build`
+   - Output directory: `dist`
+3. **Add environment variables** (Settings → Environment Variables):
+   - `VITE_CLERK_PUBLISHABLE_KEY`
+   - `VITE_API_URL` (optional)
+   - `VITE_USE_MOCK_DATA` (`true` for static demo, `false` when backend URL is reachable)
+   - `VITE_DEFAULT_USER_ID`
+4. Deploy. Vercel’s static hosting + mock data gives you a fully functional showcase without running the backend.
+
+> When you later host the Spring Boot API (Render, Railway, Fly.io, Heroku, etc.), just point `VITE_API_URL` to it and disable mock data.
+
+---
+
+## Deploying the backend
+
+Any JVM-friendly host works (Render, Railway, Azure App Service, AWS Elastic Beanstalk, etc.).
+
+1. Provision MongoDB (Atlas recommended) and collect the connection string.
+2. Set environment variables:
+   - `MONGODB_URI`
+   - `MONGODB_DB` (optional, else defaults to `quickshow`)
+   - `PORT` (only if host requires a random port)
+   - `ALLOWED_ORIGINS` (comma-separated list, e.g. `https://quickshow.vercel.app`)
+3. Build & run:
+   ```bash
+   mvn -DskipTests package
+   java -jar target/backend-0.0.1-SNAPSHOT.jar
+   ```
+4. Update the frontend’s `VITE_API_URL` to this deployed URL and disable mock data.
+
+---
+
+## API surface (Spring Boot)
+
+- **Movies**: `GET /api/movies`, `GET /api/movies/{id}`, `GET /api/movies/search?title=`, CRUD endpoints.
+- **Shows**: `GET /api/shows/{id}`, `GET /api/shows/movie/{movieId}/date/{yyyy-MM-dd}`, plus CRUD.
+- **Tickets**: booking + cancellation endpoints (`POST /api/tickets`, `PUT /api/tickets/{id}/cancel`, etc.).
+- **Users & Theaters**: standard CRUD endpoints.
+
+Global CORS + environment-driven origins keep the API consumption-ready for both localhost and Vercel domains.
+
+---
+
+## Dummy data & offline mode
+
+- `frontend/src/data/mockData.js` ships with cinematic posters, trailers, partner theaters, premium showtimes, and starter bookings.
+- `frontend/src/lib/quickshowApi.js` orchestrates between the real API and mock data. When mock mode is enabled (default for Vercel), reads/writes happen via `localStorage` so bookings and favourites persist per visitor.
+- The backend `DataSeeder` mirrors the most popular titles to ensure a smooth transition once you connect to MongoDB.
+
+---
+
+## Testing & linting
+
+```bash
+# frontend
+npm run lint
+npm run build
+
+# backend
+mvn test
+```
+
+CI recommendation: run `npm run build` and `mvn -DskipTests=false test` before deploying.
+
+---
+
+## Support & contributions
+
+1. Open an issue with context, screenshots/logs, and repro steps.
+2. For UI tweaks or data updates, edit the React layer (`frontend/src`) and submit a PR.
+3. For API/extensions, add service + controller tests where possible.
+
+Enjoy the show! 🎟️🍿

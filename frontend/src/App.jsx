@@ -8,6 +8,7 @@ import {
 import SearchResults from './pages/SearchResults'; // create this page
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
+import Movies from './pages/Movies';
 import MovieDetails from './pages/MovieDetails';
 import SeatLayout from './pages/SeatLayout';
 import MyBookings from './pages/MyBookings';
@@ -22,6 +23,7 @@ function App() {
         <main className="min-h-screen bg-gray-50">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/movies" element={<Movies />} />
             <Route path="/sign-in/*" element={<SignIn routing="path" path="/sign-in" />} />
             <Route path="/sign-up/*" element={<SignUp routing="path" path="/sign-up" />} />
 

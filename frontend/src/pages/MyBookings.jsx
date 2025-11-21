@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, MapPin, Ticket, Download, X } from 'lucide-react';
-import axios from '../lib/axios';
+import { Calendar, Clock, MapPin, Ticket, Download, X, Film, DollarSign } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { bookingApi, movieApi, showApi, theaterApi, getDefaultUserId } from '../lib/quickshowApi';
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -13,21 +13,45 @@ const MyBookings = () => {
   }, []);
 
   const fetchBookings = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get('/api/tickets/user/user123'); // In real app, use actual user ID
-      setBookings(response.data);
-      setLoading(false);
+      const [bookingData, movieList, showList, theaters] = await Promise.all([
+        bookingApi.listByUser(getDefaultUserId()),
+        movieApi.list(),
+        showApi.listUpcoming(),
+        Promise.resolve(theaterApi.list()),
+      ]);
+
+      const movieMap = Object.fromEntries(movieList.map((movie) => [movie.id, movie]));
+      const showMap = Object.fromEntries(showList.map((show) => [show.id, show]));
+      const theaterMap = Object.fromEntries(theaters.map((theater) => [theater.id, theater]));
+
+      const enriched = bookingData.map((booking) => {
+        const show = showMap[booking.showId] ?? {};
+        const movie = movieMap[show.movieId];
+        const theater = theaterMap[show.theaterId];
+        return {
+          ...booking,
+          movie,
+          show,
+          theater,
+        };
+      });
+
+      setBookings(enriched);
     } catch (error) {
       console.error('Error fetching bookings:', error);
+      toast.error('Unable to load bookings.');
+    } finally {
       setLoading(false);
     }
   };
 
   const handleCancelBooking = async (bookingId) => {
     try {
-      await axios.put(`/api/tickets/${bookingId}/cancel`);
+      await bookingApi.cancel(bookingId);
       toast.success('Booking cancelled successfully');
-      fetchBookings(); // Refresh the list
+      fetchBookings();
     } catch (error) {
       console.error('Error cancelling booking:', error);
       toast.error('Failed to cancel booking');
@@ -83,44 +107,28 @@ const MyBookings = () => {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
-                        <h3 className="text-xl font-semibold text-gray-900">
-                          Booking #{booking.id.substring(0, 8)}
-                        </h3>
+                        <div>
+                          <p className="text-sm text-gray-400">
+                            Booking #{booking.id ? booking.id.substring(0, 8) : '—'}
+                          </p>
+                          <h3 className="text-xl font-semibold text-gray-900">{booking.movie?.title ?? 'QuickShow Booking'}</h3>
+                        </div>
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(booking.bookingStatus)}`}>
                           {booking.bookingStatus}
                         </span>
                       </div>
                       
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="h-5 w-5 text-gray-400" />
-                          <span className="text-gray-600">
-                            {new Date(booking.showDateTime).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Clock className="h-5 w-5 text-gray-400" />
-                          <span className="text-gray-600">
-                            {new Date(booking.showDateTime).toLocaleTimeString()}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <MapPin className="h-5 w-5 text-gray-400" />
-                          <span className="text-gray-600">
-                            Seats: {booking.seatNumbers.join(', ')}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Ticket className="h-5 w-5 text-gray-400" />
-                          <span className="text-gray-600">
-                            ${booking.totalAmount}
-                          </span>
-                        </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
+                        <InfoPill icon={<Calendar className="h-5 w-5 text-gray-400" />} label="Show Date" value={booking.showDateTime ? new Date(booking.showDateTime).toLocaleDateString() : 'TBD'} />
+                        <InfoPill icon={<Clock className="h-5 w-5 text-gray-400" />} label="Show Time" value={booking.showDateTime ? new Date(booking.showDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'} />
+                        <InfoPill icon={<MapPin className="h-5 w-5 text-gray-400" />} label="Venue" value={booking.theater ? `${booking.theater.name}, ${booking.theater.city}` : 'TBD'} />
+                        <InfoPill icon={<Ticket className="h-5 w-5 text-gray-400" />} label="Seats" value={booking.seatNumbers?.join(', ') ?? '-'} />
+                        <InfoPill icon={<DollarSign className="h-5 w-5 text-gray-400" />} label="Amount" value={`$${booking.totalAmount?.toFixed(2) ?? '0.00'}`} />
                       </div>
 
                       <div className="flex items-center justify-between">
                         <div className="text-sm text-gray-500">
-                          Booked on {new Date(booking.bookingDate).toLocaleDateString()}
+                          Booked on {booking.bookingDate ? new Date(booking.bookingDate).toLocaleDateString() : 'TBD'}
                         </div>
                         <div className="flex space-x-2">
                           {booking.bookingStatus === 'CONFIRMED' && (
@@ -153,3 +161,13 @@ const MyBookings = () => {
 };
 
 export default MyBookings; 
+
+const InfoPill = ({ icon, label, value }) => (
+  <div className="flex items-center space-x-2">
+    {icon}
+    <div>
+      <p className="text-xs uppercase tracking-widest text-gray-400">{label}</p>
+      <p className="text-gray-600">{value}</p>
+    </div>
+  </div>
+);
